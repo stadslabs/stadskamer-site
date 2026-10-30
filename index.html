@@ -415,6 +415,7 @@ var ROOMS=[
  {n:'U Ruimte',h:27,s:88,l:40,cap:15},
  {n:'Creatieve kamer',h:317,s:64,l:42,cap:15},
  {n:'Burgemeesterkamer',h:228,s:64,l:46,cap:null}];
+SP.forEach(function(raw,k){var n=raw.replace(/ \(1\/2\)$/,'');if(!ROOMS.some(function(r){return r.n===n;}))ROOMS.push({n:n,h:(k*67+20)%360,s:55,l:40,cap:null});});
 var RM={};ROOMS.forEach(function(r){RM[r.n]=r;r.short=r.n.replace(/\s*\(.*\)$/,'');});
 var rv=function(room){var r=RM[room]||{h:200,s:20,l:40};return '--h:'+r.h+';--s:'+r.s+'%;--l:'+r.l+'%;';};
 var CUSTS=Array.from(new Set(EV.map(function(e){return e.cust;}))).sort(function(a,b){return a.localeCompare(b,'nl');});
@@ -482,11 +483,11 @@ S.date=today();
 /* ---------- state ---------- */
 var KEY='stadskamer.planning.v1';
 function load(){try{var j=JSON.parse(localStorage.getItem(KEY)||'null');if(!j)return;
-  if(j.view)S.view=j.view; if(Array.isArray(j.rooms))S.rooms=new Set(j.rooms.filter(function(n){return RM[n];}));
+  if(j.view)S.view=j.view; if(Array.isArray(j.rooms)){var kn=j.known||['Upstairs (max 35 pers.)','SjoenkCentral (ruim 150 pers.)','ConnectLounge (max 40 pers.)','Spiegelzaal','Barrista','Gevangenis','Huiskamer (begane grond)','U Ruimte','Creatieve kamer','Suite'];S.rooms=new Set(j.rooms.filter(function(n){return RM[n];}));ROOMS.forEach(function(r){if(kn.indexOf(r.n)<0)S.rooms.add(r.n);});}
   if(Array.isArray(j.status))S.status=new Set(j.status); S.details=false; S.rot=+j.rot||0; S.scale=+j.scale||1;
   if(j.theme)S.theme=j.theme; if(Array.isArray(j.presets))S.presets=j.presets; if(j.lang==='nl'||j.lang==='en')S.lang=j.lang;}catch(e){}}
 function save(){try{localStorage.setItem(KEY,JSON.stringify({view:S.view,rooms:Array.from(S.rooms),status:Array.from(S.status),
-  details2:S.details,rot:S.rot,scale:S.scale,theme:S.theme,presets:S.presets,lang:S.lang}));}catch(e){}}
+  details2:S.details,known:ROOMS.map(function(r){return r.n;}),rot:S.rot,scale:S.scale,theme:S.theme,presets:S.presets,lang:S.lang}));}catch(e){}}
 load();
 if(location.hash==='#tv')S.tv=true;
 
